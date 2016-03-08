@@ -15,14 +15,12 @@ import (
 func main() {
 	if len(os.Args) != 2 {
 		log.Fatal("Please specify the path to save the generated image")
-		os.Exit(1)
 	}
 	imgPath := os.Args[1]
 
 	out, err := os.Create(imgPath)
 	if err != nil {
 		log.Fatal(err)
-		os.Exit(1)
 	}
 
 	width, height := 100, 100
@@ -40,7 +38,6 @@ func main() {
 
 	if err != nil {
 		log.Fatal(err)
-		os.Exit(1)
 	}
 
 	fmt.Printf("Image saved to %s\n", imgPath)
