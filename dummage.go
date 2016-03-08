@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"image"
@@ -43,8 +42,7 @@ func main() {
 func parseImageConfig(name string) (*imageConfig, error) {
 	match := imageNamePattern.FindStringSubmatch(name)
 	if len(match) != 4 {
-		msg := fmt.Sprintf("Fail to parse name: %v", name)
-		return nil, errors.New(msg)
+		return nil, fmt.Errorf("Fail to parse name: %v", name)
 	}
 
 	var width, height int
