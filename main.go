@@ -1,46 +1,76 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
 	"image/jpeg"
-	"image/png"
+	"io"
 	"log"
-	"os"
+	"net/http"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
-func main() {
-	if len(os.Args) != 2 {
-		log.Fatal("Please specify the path to save the generated image")
-	}
-	imgPath := os.Args[1]
+var imageNamePattern *regexp.Regexp
 
-	out, err := os.Create(imgPath)
+func init() {
+	imageNamePattern = regexp.MustCompile(`(\d+)x(\d+).jpg`)
+}
+
+func parseDimension(name string) (int, int, error) {
+	match := imageNamePattern.FindStringSubmatch(name)
+	if len(match) == 0 {
+		msg := fmt.Sprintf("Fail to parse name: %v", name)
+		return 0, 0, errors.New(msg)
+	}
+
+	var width, height int
+	widthStr, heightStr := match[1], match[2]
+	width, err := strconv.Atoi(widthStr)
 	if err != nil {
-		log.Fatal(err)
+		return width, height, err
+	}
+	height, err = strconv.Atoi(heightStr)
+	return width, height, err
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	name := strings.TrimLeft(r.URL.String(), "/")
+
+	width, height, err := parseDimension(name)
+	if err != nil {
+		log.Println(err)
+		http.NotFound(w, r)
+		return
 	}
 
-	width, height := 100, 100
 	background := color.RGBA{0, 0xFF, 0, 0xCC}
 
 	img := createImage(width, height, background)
-
-	if strings.HasSuffix(strings.ToLower(imgPath), ".jpg") {
-		var opt jpeg.Options
-		opt.Quality = 80
-		err = jpeg.Encode(out, img, &opt)
-	} else {
-		err = png.Encode(out, img)
-	}
-
+	err = writeJPEG(w, img)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
+}
 
-	fmt.Printf("Image saved to %s\n", imgPath)
+func writeJPEG(w io.Writer, img image.Image) error {
+	var opt jpeg.Options
+	opt.Quality = 80
+	return jpeg.Encode(w, img, &opt)
+}
+
+func main() {
+	port := 8000
+	url := fmt.Sprintf("localhost:%d", port)
+
+	log.Printf("Starting server on port %d\n", port)
+
+	http.HandleFunc("/", handler)
+	log.Fatal(http.ListenAndServe(url, nil))
 }
 
 func createImage(width int, height int, background color.RGBA) *image.RGBA {
