@@ -26,7 +26,18 @@ type imageConfig struct {
 
 func init() {
 	imageNamePattern = regexp.MustCompile(`(?i)(\d+)x(\d+)(\-[0-9a-f]{6})?.jpg`)
+}
 
+func main() {
+	port := flag.Int("port", 8000, "start server on this port")
+	flag.Parse()
+
+	url := fmt.Sprintf("localhost:%d", *port)
+
+	log.Printf("Starting server on port %d\n", *port)
+
+	http.HandleFunc("/", handler)
+	log.Fatal(http.ListenAndServe(url, nil))
 }
 
 func parseImageConfig(name string) (*imageConfig, error) {
@@ -100,18 +111,6 @@ func writeJPEG(w io.Writer, img image.Image) error {
 	var opt jpeg.Options
 	opt.Quality = 80
 	return jpeg.Encode(w, img, &opt)
-}
-
-func main() {
-	port := flag.Int("port", 8000, "start server on this port")
-	flag.Parse()
-
-	url := fmt.Sprintf("localhost:%d", *port)
-
-	log.Printf("Starting server on port %d\n", *port)
-
-	http.HandleFunc("/", handler)
-	log.Fatal(http.ListenAndServe(url, nil))
 }
 
 func createImage(width int, height int, background color.Color) *image.RGBA {
