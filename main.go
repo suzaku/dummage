@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"image"
 	"image/color"
@@ -64,10 +65,12 @@ func writeJPEG(w io.Writer, img image.Image) error {
 }
 
 func main() {
-	port := 8000
-	url := fmt.Sprintf("localhost:%d", port)
+	port := flag.Int("port", 8000, "start server on this port")
+	flag.Parse()
 
-	log.Printf("Starting server on port %d\n", port)
+	url := fmt.Sprintf("localhost:%d", *port)
+
+	log.Printf("Starting server on port %d\n", *port)
 
 	http.HandleFunc("/", handler)
 	log.Fatal(http.ListenAndServe(url, nil))
