@@ -9,14 +9,15 @@ import (
 	"image/jpeg"
 	"io"
 	"log"
+	"math/rand"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var imageNamePattern *regexp.Regexp
-var defaultColor = color.RGBA{0, 0xFF, 0, 0xCC}
 
 type imageConfig struct {
 	width, height int
@@ -28,6 +29,8 @@ func init() {
 }
 
 func main() {
+	rand.Seed(time.Now().UTC().UnixNano())
+
 	port := flag.Int("port", 8000, "start server on this port")
 	flag.Parse()
 
@@ -37,6 +40,14 @@ func main() {
 
 	http.HandleFunc("/", handler)
 	log.Fatal(http.ListenAndServe(url, nil))
+}
+
+func randomColor() color.Color {
+	const upperBound = 2 << 8
+	r := uint8(rand.Intn(upperBound))
+	g := uint8(rand.Intn(upperBound))
+	b := uint8(rand.Intn(upperBound))
+	return color.RGBA{r, g, b, 0xFF}
 }
 
 func parseImageConfig(name string) (*imageConfig, error) {
@@ -61,7 +72,7 @@ func parseImageConfig(name string) (*imageConfig, error) {
 		colorStr = colorStr[1:]
 		background = parseColor(colorStr)
 	} else {
-		background = defaultColor
+		background = randomColor()
 	}
 
 	return &imageConfig{width, height, background}, err
@@ -83,7 +94,7 @@ func parseColor(s string) color.Color {
 
 	if err != nil {
 		log.Printf("Fail to parse color: %v, using default color\n%s", s, err)
-		return defaultColor
+		return randomColor()
 	}
 	return color.RGBA{uint8(r), uint8(g), uint8(b), 0xFF}
 }
