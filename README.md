@@ -37,7 +37,7 @@ $ dummage -port 9090
 
 Now `dummage` is ready to generate images for you, try the following URLS:
 
-* http://localhost:8000/200x200.jpg
-* http://localhost:8000/300x500-d5d5d5.jpg
+* [http://localhost:8000/200x200.jpg](http://localhost:8000/200x200.jpg)
+* [http://localhost:8000/300x500-d5d5d5.jpg](http://localhost:8000/300x500-d5d5d5.jpg)
 
 The dimension and background color of the requested image is parsed from the resource name, `{width}x{height}-{background}.jpg}`. If the `-{background}` part is left out, a default background color will be used.
