@@ -59,26 +59,28 @@ func parseImageConfig(name string) (*imageConfig, error) {
 		return nil, fmt.Errorf("Fail to parse name: %v", name)
 	}
 
-	var width, height int
+	var err error
+	var config imageConfig
 	widthStr, heightStr, colorStr, suffix := match[1], match[2], match[3], match[4]
-	width, err := strconv.Atoi(widthStr)
+	config.width, err = strconv.Atoi(widthStr)
 	if err == nil {
-		height, err = strconv.Atoi(heightStr)
+		config.height, err = strconv.Atoi(heightStr)
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	var background color.Color
 	if len(colorStr) > 0 {
 		colorStr = colorStr[1:]
-		background = parseColor(colorStr)
+		config.background = parseColor(colorStr)
 	} else {
-		background = randomColor()
+		config.background = randomColor()
 	}
 
-	return &imageConfig{width, height, background, strings.ToUpper(suffix)}, err
+	config.format = strings.ToUpper(suffix)
+
+	return &config, err
 }
 
 func parseColor(s string) color.Color {
