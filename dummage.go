@@ -7,6 +7,7 @@ import (
 	"image/color"
 	"image/draw"
 	"image/jpeg"
+	"image/png"
 	"io"
 	"log"
 	"math/rand"
@@ -22,10 +23,11 @@ var imageNamePattern *regexp.Regexp
 type imageConfig struct {
 	width, height int
 	background    color.Color
+	format        string
 }
 
 func init() {
-	imageNamePattern = regexp.MustCompile(`(?i)(\d+)x(\d+)(\-[0-9a-f]{6})?.jpg`)
+	imageNamePattern = regexp.MustCompile(`(?i)(\d+)x(\d+)(\-[0-9a-f]{6})?.(jpg|png)`)
 }
 
 func main() {
@@ -53,12 +55,12 @@ func randomColor() color.Color {
 
 func parseImageConfig(name string) (*imageConfig, error) {
 	match := imageNamePattern.FindStringSubmatch(name)
-	if len(match) != 4 {
+	if len(match) != 5 {
 		return nil, fmt.Errorf("Fail to parse name: %v", name)
 	}
 
 	var width, height int
-	widthStr, heightStr, colorStr := match[1], match[2], match[3]
+	widthStr, heightStr, colorStr, suffix := match[1], match[2], match[3], match[4]
 	width, err := strconv.Atoi(widthStr)
 	if err == nil {
 		height, err = strconv.Atoi(heightStr)
@@ -76,7 +78,7 @@ func parseImageConfig(name string) (*imageConfig, error) {
 		background = randomColor()
 	}
 
-	return &imageConfig{width, height, background}, err
+	return &imageConfig{width, height, background, strings.ToUpper(suffix)}, err
 }
 
 func parseColor(s string) color.Color {
@@ -111,7 +113,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	img := createImage(config.width, config.height, config.background)
-	err = writeJPEG(w, img)
+	if config.format == "JPG" {
+		err = writeJPEG(w, img)
+	} else {
+		err = writePNG(w, img)
+	}
 	if err != nil {
 		log.Panic(err)
 	}
@@ -121,6 +127,10 @@ func writeJPEG(w io.Writer, img image.Image) error {
 	var opt jpeg.Options
 	opt.Quality = 80
 	return jpeg.Encode(w, img, &opt)
+}
+
+func writePNG(w io.Writer, img image.Image) error {
+	return png.Encode(w, img)
 }
 
 func createImage(width, height int, background color.Color) *image.RGBA {
