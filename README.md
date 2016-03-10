@@ -49,5 +49,10 @@ Now `dummage` is ready to generate images for you, try the following URLS:
 
 * [http://localhost:8000/200x200.jpg](http://localhost:8000/200x200.jpg)
 * [http://localhost:8000/300x500-d5d5d5.jpg](http://localhost:8000/300x500-d5d5d5.jpg)
+* [http://localhost:8000/300x200.png](http://localhost:8000/300x200.png)
 
-The dimension and background color of the requested image is parsed from the resource name, `{width}x{height}-{background}.jpg}`. If the `-{background}` part is left out, a random background color will be used.
+The dimension and background color of the requested image is parsed from the resource name,
+
+`{width}x{height}-{background}.{jpg or png}`
+
+If the `-{background}` part is left out, a random background color will be used.
