@@ -27,7 +27,7 @@ type imageConfig struct {
 }
 
 func init() {
-	imageNamePattern = regexp.MustCompile(`(?i)(\d+)x(\d+)(\-[0-9a-f]{6})?.(jpg|png)`)
+	imageNamePattern = regexp.MustCompile(`(?i)(\d+)x(\d+)(\-[0-9a-f]{6})?.(jpe?g|png)`)
 }
 
 func main() {
@@ -113,7 +113,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	img := createImage(config.width, config.height, config.background)
-	if config.format == "JPG" {
+	if config.format == "JPG" || config.format == "JPEG" {
 		err = writeJPEG(w, img)
 	} else {
 		err = writePNG(w, img)
