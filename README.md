@@ -13,10 +13,20 @@ product.thumbnail = "http://localhost:8000/100x100.jpg"
 
 ## Installation
 
-If you have go installed, you can simply get dummage with the following command:
+### Install with Go
+
+If you have Go installed, you can simply get dummage with the following command:
 
 ```bash
 go get github.com/suzaku/dummage
+```
+
+### Install with Docker
+
+If you prefer to run dummage with docker, you can do so with the `satoru/dummage` image:
+
+```bash
+docker run -p 8000:8000 --name dummage --rm satoru/dummage
 ```
 
 ## Usage
