@@ -31,12 +31,13 @@ func init() {
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
+	host := flag.String("host", "localhost", "listen on this host")
 	port := flag.Int("port", 8000, "start server on this port")
 	flag.Parse()
 
-	url := fmt.Sprintf("localhost:%d", *port)
+	url := fmt.Sprintf("%s:%d", *host, *port)
 
-	log.Printf("Starting server on port %d\n", *port)
+	log.Printf("Starting server on %s\n", url)
 
 	http.HandleFunc("/", handler)
 	log.Fatal(http.ListenAndServe(url, nil))
@@ -122,7 +123,7 @@ func writeJPEG(w io.Writer, img image.Image) error {
 	return jpeg.Encode(w, img, &opt)
 }
 
-func createImage(width int, height int, background color.Color) *image.RGBA {
+func createImage(width, height int, background color.Color) *image.RGBA {
 	rect := image.Rect(0, 0, width, height)
 	img := image.NewRGBA(rect)
 	draw.Draw(img, img.Bounds(), &image.Uniform{background}, image.ZP, draw.Src)
