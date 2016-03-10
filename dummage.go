@@ -46,11 +46,13 @@ func main() {
 }
 
 func randomColor() color.Color {
-	const upperBound = 2 << 8
-	r := uint8(rand.Intn(upperBound))
-	g := uint8(rand.Intn(upperBound))
-	b := uint8(rand.Intn(upperBound))
-	return color.RGBA{r, g, b, 0xFF}
+	const max = 2 << 8
+	return color.RGBA{
+		uint8(rand.Intn(max)),
+		uint8(rand.Intn(max)),
+		uint8(rand.Intn(max)),
+		0xFF,
+	}
 }
 
 func parseImageConfig(name string) (*imageConfig, error) {
