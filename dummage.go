@@ -20,12 +20,6 @@ import (
 
 var imageNamePattern *regexp.Regexp
 
-type imageConfig struct {
-	width, height int
-	background    color.Color
-	format        string
-}
-
 func init() {
 	imageNamePattern = regexp.MustCompile(`(?i)(\d+)x(\d+)(\-[0-9a-f]{6})?.(jpe?g|png)`)
 }
@@ -55,34 +49,30 @@ func randomColor() color.Color {
 	}
 }
 
-func parseImageConfig(name string) (*imageConfig, error) {
+func parseImageConfig(name string) (width, height int, background color.Color, format string, err error) {
 	match := imageNamePattern.FindStringSubmatch(name)
 	if len(match) != 5 {
-		return nil, fmt.Errorf("Fail to parse name: %v", name)
+		err = fmt.Errorf("Fail to parse name: %v", name)
+		return
 	}
 
-	var err error
-	var config imageConfig
-	widthStr, heightStr, colorStr, suffix := match[1], match[2], match[3], match[4]
-	config.width, err = strconv.Atoi(widthStr)
+	widthStr, heightStr, colorStr, format := match[1], match[2], match[3], strings.ToUpper(match[4])
+	width, err = strconv.Atoi(widthStr)
 	if err == nil {
-		config.height, err = strconv.Atoi(heightStr)
+		height, err = strconv.Atoi(heightStr)
 	}
 
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	if len(colorStr) > 0 {
-		colorStr = colorStr[1:]
-		config.background = parseColor(colorStr)
+		background = parseColor(colorStr[1:])
 	} else {
-		config.background = randomColor()
+		background = randomColor()
 	}
 
-	config.format = strings.ToUpper(suffix)
-
-	return &config, err
+	return
 }
 
 func parseColor(s string) color.Color {
@@ -109,15 +99,15 @@ func parseColor(s string) color.Color {
 func handler(w http.ResponseWriter, r *http.Request) {
 	name := strings.TrimLeft(r.URL.String(), "/")
 
-	config, err := parseImageConfig(name)
+	width, height, background, format, err := parseImageConfig(name)
 	if err != nil {
 		log.Println(err)
 		http.NotFound(w, r)
 		return
 	}
 
-	img := createImage(config.width, config.height, config.background)
-	if config.format == "JPG" || config.format == "JPEG" {
+	img := createImage(width, height, background)
+	if format == "JPG" || format == "JPEG" {
 		err = writeJPEG(w, img)
 	} else {
 		err = writePNG(w, img)
