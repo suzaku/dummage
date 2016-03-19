@@ -21,7 +21,7 @@ import (
 var imageNamePattern *regexp.Regexp
 
 func init() {
-	imageNamePattern = regexp.MustCompile(`(?i)(\d+)x(\d+)(\-[0-9a-f]{6})?.(jpe?g|png)`)
+	imageNamePattern = regexp.MustCompile(`(?i)^(\d+)x(\d+)(\-[0-9a-f]{6})?.(jpe?g|png)$`)
 }
 
 func main() {
