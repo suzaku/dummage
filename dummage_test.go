@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"image/color"
+	"testing"
+)
 
 func TestParseImageSizeOnly(t *testing.T) {
 	tests := []struct {
@@ -61,10 +64,9 @@ func TestParseColor(t *testing.T) {
 		{"0f1020", 15, 16, 32},
 	}
 	for _, s := range tests {
-		bg := parseColor(s.name)
-		r, g, b, _ := bg.RGBA()
-		if uint8(r) != s.r || uint8(g) != s.g || uint8(b) != s.b {
-			t.Errorf("parseColor(%q): (%d, %d, %d)", s.name, uint8(r), uint8(g), uint(b))
+		bg := parseColor(s.name).(color.RGBA)
+		if bg.R != s.r || bg.G != s.g || bg.B != s.b {
+			t.Errorf("parseColor(%q): (%d, %d, %d)", s.name, bg.R, bg.G, bg.B)
 		}
 	}
 }
