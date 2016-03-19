@@ -1,4 +1,4 @@
-# dummage
+# dummage [![Build Status](https://travis-ci.org/suzaku/dummage.svg?branch=master)](https://travis-ci.org/suzaku/dummage)
 
 Dummage is a tiny service that generates dummy images. 
 
